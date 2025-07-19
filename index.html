@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktives CLI</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #cli-output {
+            border: 1px solid black;
+            height: 300px;
+            width: 100%;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            white-space: pre-wrap; /* Erlaubt Zeilenumbrüche und Leerzeichen */
+        }
+        #cli-input {
+            width: 100%;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webdesign Idea - pseudo interactive CLI to navigate content</h1>
+    <div id="cli-output"></div>
+    <input type="text" id="cli-input" placeholder="Geben Sie einen Befehl ein...">
+    <script>
+        let inFileViewMode = false;
+
+        $(document).ready(function() {
+            $('#cli-input').on('keypress', function(e) {
+                if (e.which == 13) { // Enter-Taste
+                    const command = $(this).val();
+                    $(this).val(''); // Eingabefeld löschen
+
+                    if (inFileViewMode && command.toLowerCase() === 'exit') {
+                        inFileViewMode = false;
+                        $('#cli-output').html(''); // Leere die Ausgabe und kehre zum normalen Modus zurück
+                    } else {
+                        $.ajax({
+                            url: '/execute',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ command: command }),
+                            success: function(response) {
+                                if (response.output === "CLEAR_CONSOLE") {
+                                    $('#cli-output').empty(); // Leere die Ausgabe
+                                } else if (command.startsWith('nano ')) {
+                                    // Wechsel in den Dateiansichtsmodus
+                                    inFileViewMode = true;
+                                    $('#cli-output').html(response.output.replace(/\n/g, '<br>'));
+                                } else {
+                                    // Normale Ausgabe
+                                    var formattedResponse = '$ ' + command + '\n' + response.output;
+                                    formattedResponse = formattedResponse.replace(/\n/g, '<br>');
+
+                                    if (!inFileViewMode) {
+                                        $('#cli-output').append(formattedResponse + '<br>');
+                                    } else {
+                                        $('#cli-output').html(formattedResponse + '<br>'); // Zeige die Ausgabe im Dateiansichtsmodus
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
