@@ -1,4 +1,4 @@
-```markdown
+
 # Interaktives CLI Web Interface
 
 Eine dynamische Webseite mit einem interaktiven Command Line Interface (CLI), das einige grundlegende Linux-Befehle simuliert. Nutzer können durch ein simuliertes Dateisystem navigieren, Verzeichnisse auflisten, Dateiinhalte anzeigen und vieles mehr. Dient nur als Proof of Concept für diesen Webdesign-Ansatz. 
